@@ -7,13 +7,12 @@ const middleware = require('./middleware')
 
 const app = feathers()
 
-app.configure(configuration(path.join(__dirname, './')))
-  .configure(middleware)
+app.configure(configuration(path.join(__dirname, './'))).configure(middleware)
 
 const host = app.get('host')
 const port = app.get('port')
 
-process.on('nuxt:build:done', (err) => {
+process.on('nuxt:build:done', err => {
   if (err) {
     consola.error(err)
     process.exit(1)
