@@ -2,7 +2,11 @@
   <div>
     cardsCount: {{ cardsCount }}
     Time: {{ timer }}
-    <button type="button" @click="startGame()">Start game</button>
+    Turn: {{ turn }}
+    <button v-show="!gameStarted" type="button" @click="startGame()">Start game</button>
+    <button type="button" @click="restartGame()">Restart game</button>
+    <button type="button" @click="endGame()">End game</button>
+    <button type="button" @click="pushTurn()">Next turn</button>
   </div>
 </template>
 
@@ -10,6 +14,11 @@
 export default {
   data() {
     return {
+      // states viarables
+      gameEnded: false,
+      gameStarted: false,
+      // player id each turn (Player 1 -> turn = 1 ; Player 2 -> turn = 2 ; etc.)
+      turn: 0,
       // Timer initializing
       timer: '--:--',
       // count of players (only for testing)
@@ -99,10 +108,32 @@ export default {
     shuffleCards: function () {
 
     },
-    // Function for starting a game
+    // Functions for control a game
     startGame: function () {
+      this.gameStarted = true
+      this.pushTurn()
       // Debug
       console.log('Game started')
+    },
+    endGame: function () {
+      this.gameStarted = false
+      this.gameEnded = true
+      this.turn = 0
+      // debug
+      console.log('Game ended')
+    },
+    restartGame: function () {
+      this.endGame()
+      this.gameEnded = false
+      this.startGame()
+      // debug
+      console.log('Game restarted')
+    },
+    // Functions for game logic
+    pushTurn: function () {
+      if (this.turn < this.players.length) { this.turn++ } else if (!this.gameEnded) { this.turn = 1 } else { this.turn = 0 }
+      // debug
+      console.log('push Turn')
     }
   }
 }
