@@ -19,6 +19,14 @@
       <button v-show="gameStarted" type="button" @click="pushTurn()">Next turn</button>
       <button v-show="gameStarted" type="button" @click="nextRound()">Next round</button>
     </div>
+    <div class="row">
+      {{ cards }}
+    </div>
+    <div class="row">
+      <div v-for="(card, index) in players[turn].ownCards" :key="index" class="card">
+        <img :src="generateCardImgUrl(card.name, card.suit)" width="60px">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,8 +36,13 @@
     flex-direction: column;
   }
   .row {
+    display: flex;
     border-bottom:1px solid #000;
     padding: 5px;
+  }
+
+  .card {
+
   }
 </style>
 
@@ -54,39 +67,48 @@ export default {
       // Default card deck and points for each card
       deck: [{
         name: '6',
-        points: 6
+        points: 6,
+        suit: ''
       },
       {
         name: '7',
-        points: 7
+        points: 7,
+        suit: ''
       },
       {
         name: '8',
-        points: 8
+        points: 8,
+        suit: ''
       },
       {
         name: '9',
-        points: 0
+        points: 0,
+        suit: ''
       },
       {
         name: '10',
-        points: 10
+        points: 10,
+        suit: ''
       },
       {
         name: 'ace',
-        points: 11
+        points: 11,
+        suit: ''
       },
       {
         name: 'king',
-        points: 4
+        points: 4,
+        suit: ''
       },
       {
         name: 'queen',
-        points: 3
+        points: 3,
+        suit: ''
       },
       {
         name: 'jack',
-        points: 2
+        points: 2,
+        suit: ''
       }
       ],
       // Card suits
@@ -153,21 +175,29 @@ export default {
       this.time = '00:00'
     },
     startGame: function () {
-      const cardsPerPlayer = this.cardsCount / this.players.length
+      const cardsPerPlayer = 4
       this.gameStarted = true
       // set Timer
       this.startTimer()
 
       // Make deck of cards for every player
-      this.cards = this.shuffleCards(this.deck.reduce(function (res, current, index, array) {
-        return res.concat([current, current, current, current])
-      }, []))
+      for (let i = 0; i < this.suits.length; i++) {
+        for (let j = 0; j < this.deck.length; j++) {
+          this.cards.push(this.deck[j])
+          this.cards[j * i].suit = this.suits[i]
+        }
+      }
+
+      this.cards = this.shuffleCards(this.cards)
 
       for (let i = 0; i < this.players.length; i++) {
         for (let j = 0; j < cardsPerPlayer; j++) {
-          const randomCard = Math.floor(Math.random() * this.cards.length)
-          this.players[i].ownCards.push(this.cards[randomCard])
-          this.cards.slice(randomCard, 1)
+          if (this.cards.length > 0) {
+            const randomCard = Math.floor(Math.random() * this.cards.length)
+            const card = this.cards[randomCard]
+            this.cards.splice(randomCard, 1)
+            this.players[i].ownCards.push(card)
+          }
         }
       }
 
@@ -214,6 +244,10 @@ export default {
       }
       // debug
       console.log('push Turn')
+    },
+    // helpers Functions
+    generateCardImgUrl: function (cardName, suit) {
+      return '/cards/' + cardName + '_of_' + suit + '.png'
     }
   }
 }
