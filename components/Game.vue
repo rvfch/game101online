@@ -1,17 +1,40 @@
 <template lang="html">
-  <div>
-    cardsCount: {{ cardsCount }}
-    Time: {{ timer }}
-    Which turn: {{ players[turn].playerName }}
-    Current round: {{ round }}
-    <button v-show="!gameStarted" type="button" @click="startGame()">Start game</button>
-    <button v-show="gameStarted" type="button" @click="restartGame()">Restart game</button>
-    <button v-show="gameStarted" type="button" @click="endGame()">End game</button>
-    <button v-show="gameStarted" type="button" @click="pushTurn()">Next turn</button>
+  <div class="container">
+    <div class="row">
+      Cards count: {{ cardsCount }}
+    </div>
+    <div class="row">
+      Time: {{ time }}
+    </div>
+    <div class="row">
+      Which turn: {{ players[turn].playerName }}
+    </div>
+    <div class="row">
+      Current round: {{ round }}
+    </div>
+    <div class="row">
+      <button v-show="!gameStarted" type="button" @click="startGame()">Start game</button>
+      <button v-show="gameStarted" type="button" @click="restartGame()">Restart game</button>
+      <button v-show="gameStarted" type="button" @click="endGame()">End game</button>
+      <button v-show="gameStarted" type="button" @click="pushTurn()">Next turn</button>
+      <button v-show="gameStarted" type="button" @click="nextRound()">Next round</button>
+    </div>
   </div>
 </template>
 
+<style lang="css">
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+  .row {
+    border-bottom:1px solid #000;
+    padding: 5px;
+  }
+</style>
+
 <script>
+import moment from 'moment'
 export default {
   data() {
     return {
@@ -20,10 +43,12 @@ export default {
       // states viarables
       gameEnded: false,
       gameStarted: false,
-      // turn count
+      // turn counter
       turn: 0,
       // Timer initializing
-      timer: '--:--',
+      time: '00:00',
+      timer: null,
+      startTime: 0,
       // count of players (only for testing)
       playersCount: 4,
       // Default card deck and points for each card
@@ -117,14 +142,30 @@ export default {
     // Functions for control a game
     startGame: function () {
       this.gameStarted = true
+      // set Timer
+      this.startTimer()
+
       // Debug
       console.log('Game started')
+    },
+    startTimer: function () {
+      this.startTime = moment()
+      this.timer = setInterval(() => {
+        this.time = moment(moment().diff(this.startTime)).format('mm:ss')
+      }, 1000)
+    },
+    stopAndResetTimer: function () {
+      clearInterval(this.timer)
+      this.startTime = 0
+      this.time = '00:00'
     },
     endGame: function () {
       this.gameStarted = false
       this.gameEnded = true
       this.turn = 0
       this.round = 1
+
+      this.stopAndResetTimer()
       // debug
       console.log('Game ended')
     },
@@ -138,17 +179,21 @@ export default {
     // Functions for game logic
     // next round
     nextRound: function () {
+      this.turn = 0
       this.round++
+      this.stopAndResetTimer()
+      this.startTimer()
     },
     // next turn
     pushTurn: function () {
-      if (this.turn < this.players.length - 1) { this.turn++ } else { this.turn = 0 }
+      if (this.turn < this.players.length - 1) {
+        this.turn++
+      } else {
+        this.turn = 0
+      }
       // debug
       console.log('push Turn')
     }
   }
 }
 </script>
-
-<style lang="css">
-</style>

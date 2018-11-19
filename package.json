@@ -14,11 +14,12 @@
     "precommit": "npm run lint"
   },
   "dependencies": {
+    "@nuxtjs/axios": "^5.0.0",
     "cross-env": "^5.2.0",
-    "nuxt": "^2.0.0",
     "feathers": "^2.0.3",
     "feathers-configuration": "^0.3.3",
-    "@nuxtjs/axios": "^5.0.0"
+    "nuxt": "^2.0.0",
+    "vue-moment": "^4.0.0"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "0.0.1",
