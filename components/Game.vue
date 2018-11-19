@@ -2,11 +2,12 @@
   <div>
     cardsCount: {{ cardsCount }}
     Time: {{ timer }}
-    Turn: {{ turn }}
+    Which turn: {{ players[turn].playerName }}
+    Current round: {{ round }}
     <button v-show="!gameStarted" type="button" @click="startGame()">Start game</button>
-    <button type="button" @click="restartGame()">Restart game</button>
-    <button type="button" @click="endGame()">End game</button>
-    <button type="button" @click="pushTurn()">Next turn</button>
+    <button v-show="gameStarted" type="button" @click="restartGame()">Restart game</button>
+    <button v-show="gameStarted" type="button" @click="endGame()">End game</button>
+    <button v-show="gameStarted" type="button" @click="pushTurn()">Next turn</button>
   </div>
 </template>
 
@@ -14,10 +15,12 @@
 export default {
   data() {
     return {
+      // Round count
+      round: 1,
       // states viarables
       gameEnded: false,
       gameStarted: false,
-      // player id each turn (Player 1 -> turn = 1 ; Player 2 -> turn = 2 ; etc.)
+      // turn count
       turn: 0,
       // Timer initializing
       timer: '--:--',
@@ -67,31 +70,34 @@ export default {
       // Count of cards
       cardsCount: 0,
       // Players array of objects
-      players: [
-        {
-          id: 1,
-          playerName: 'Player 1',
-          ownCards: [],
-          winner: false
-        },
-        {
-          id: 2,
-          playerName: 'Player 2',
-          ownCards: [],
-          winner: false
-        },
-        {
-          id: 3,
-          playerName: 'Player 3',
-          ownCards: [],
-          winner: false
-        },
-        {
-          id: 4,
-          playerName: 'Player 4',
-          ownCards: [],
-          winner: false
-        }
+      players: [{
+        id: 1,
+        playerName: 'Player 1',
+        ownCards: [],
+        winner: false,
+        points: 0
+      },
+      {
+        id: 2,
+        playerName: 'Player 2',
+        ownCards: [],
+        winner: false,
+        points: 0
+      },
+      {
+        id: 3,
+        playerName: 'Player 3',
+        ownCards: [],
+        winner: false,
+        points: 0
+      },
+      {
+        id: 4,
+        playerName: 'Player 4',
+        ownCards: [],
+        winner: false,
+        points: 0
+      }
       ]
     }
   },
@@ -111,7 +117,6 @@ export default {
     // Functions for control a game
     startGame: function () {
       this.gameStarted = true
-      this.pushTurn()
       // Debug
       console.log('Game started')
     },
@@ -119,6 +124,7 @@ export default {
       this.gameStarted = false
       this.gameEnded = true
       this.turn = 0
+      this.round = 1
       // debug
       console.log('Game ended')
     },
@@ -130,8 +136,13 @@ export default {
       console.log('Game restarted')
     },
     // Functions for game logic
+    // next round
+    nextRound: function () {
+      this.round++
+    },
+    // next turn
     pushTurn: function () {
-      if (this.turn < this.players.length) { this.turn++ } else if (!this.gameEnded) { this.turn = 1 } else { this.turn = 0 }
+      if (this.turn < this.players.length - 1) { this.turn++ } else { this.turn = 0 }
       // debug
       console.log('push Turn')
     }
