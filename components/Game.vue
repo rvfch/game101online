@@ -180,6 +180,11 @@ export default {
       this.gameEnded = true
       this.turn = 0
       this.round = 1
+      this.cards = []
+
+      for (let i = 0; i < this.players.length; i++) {
+        this.players[i].ownCards = []
+      }
 
       this.stopAndResetTimer()
       // debug
