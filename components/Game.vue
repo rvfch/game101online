@@ -94,6 +94,7 @@ export default {
       suits: ['clubs', 'diamonds', 'spades', 'hearts'],
       // Count of cards
       cardsCount: 0,
+      cards: [],
       // Players array of objects
       players: [{
         id: 1,
@@ -132,22 +133,15 @@ export default {
     this.cardsCount = this.suits.length * this.deck.length
 
     // debug
-    console.log(this.players)
+
   },
   methods: {
     // Function for shuffling cards (Math.random)
-    shuffleCards: function () {
-
+    shuffleCards: function (cards) {
+      cards = cards.map(a => [Math.random(), a]).sort((a, b) => a[0] - b[0]).map(a => a[1])
+      return cards
     },
     // Functions for control a game
-    startGame: function () {
-      this.gameStarted = true
-      // set Timer
-      this.startTimer()
-
-      // Debug
-      console.log('Game started')
-    },
     startTimer: function () {
       this.startTime = moment()
       this.timer = setInterval(() => {
@@ -158,6 +152,29 @@ export default {
       clearInterval(this.timer)
       this.startTime = 0
       this.time = '00:00'
+    },
+    startGame: function () {
+      const cardsPerPlayer = this.cardsCount / this.players.length
+      this.gameStarted = true
+      // set Timer
+      this.startTimer()
+
+      // Make deck of cards for every player
+      this.cards = this.shuffleCards(this.deck.reduce(function (res, current, index, array) {
+        return res.concat([current, current, current, current])
+      }, []))
+
+      for (let i = 0; i < this.players.length; i++) {
+        for (let j = 0; j < cardsPerPlayer; j++) {
+          const randomCard = Math.floor(Math.random() * this.cards.length)
+          this.players[i].ownCards.push(this.cards[randomCard])
+          this.cards.slice(randomCard, 1)
+        }
+      }
+
+      console.log(this.players[0].ownCards)
+      // Debug
+      console.log('Game started')
     },
     endGame: function () {
       this.gameStarted = false
