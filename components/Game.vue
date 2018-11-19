@@ -133,7 +133,6 @@ export default {
     this.cardsCount = this.suits.length * this.deck.length
 
     // debug
-
   },
   methods: {
     // Function for shuffling cards (Math.random)
