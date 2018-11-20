@@ -18,6 +18,7 @@
       <button v-show="gameStarted" type="button" @click="endGame()">End game</button>
       <button v-show="gameStarted" type="button" @click="pushTurn()">Next turn</button>
       <button v-show="gameStarted" type="button" @click="nextRound()">Next round</button>
+      <button v-show="gameStarted" type="button" @click="takeCard(players[turn])">Take card</button>
     </div>
     <div class="row">
       Remaining cards:
@@ -26,10 +27,19 @@
       </div>
     </div>
     <div class="row">
-      {{ players[turn].playerName }} cards:
-      <div v-for="(card, index) in players[turn].ownCards" :key="index" class="card">
+      Game cards:
+      <div v-for="(card, index) in cardsInGame" :key="index" class="card">
         <img :src="generateCardImgUrl(card.name, card.suit)" width="60px">
       </div>
+    </div>
+    <div class="row">
+      {{ players[turn].playerName }} cards:
+      <div v-for="(card, index) in players[turn].ownCards" :key="index" class="card">
+        <img :class="{selectedCard: card.selected}" :src="generateCardImgUrl(card.name, card.suit)" width="60px" @click="selectCard(card)">
+      </div>
+    </div>
+    <div class="row">
+      <button v-show="gameStarted" type="button" @click="putCard()">Put card</button>
     </div>
   </div>
 </template>
@@ -46,7 +56,12 @@
   }
 
   .card {
+    border-radius: 5px;
+  }
 
+  .selectedCard {
+    border: 2px solid red;
+    border-radius: 5px;
   }
 </style>
 
@@ -121,6 +136,7 @@ export default {
       // Count of cards
       cardsCount: 0,
       cards: [],
+      cardsInGame: [],
       // Players array of objects
       players: [{
         id: 1,
@@ -188,7 +204,8 @@ export default {
           this.cards.push({
             name: this.deck[j].name,
             points: this.deck[j].points,
-            suit: this.suits[i]
+            suit: this.suits[i],
+            selected: false
           })
         }
       }
@@ -208,6 +225,10 @@ export default {
         }
       }
 
+      // put first card in to game cards
+      this.cardsInGame.push(this.cards[this.cards.length - 1])
+      this.cards.splice(this.cards.length - 1, 1)
+
       console.log(this.players[0].ownCards)
       // Debug
       console.log('Game started')
@@ -218,6 +239,7 @@ export default {
       this.turn = 0
       this.round = 1
       this.cards = []
+      this.cardsInGame = []
 
       for (let i = 0; i < this.players.length; i++) {
         this.players[i].ownCards = []
@@ -249,8 +271,28 @@ export default {
       } else {
         this.turn = 0
       }
+      // reset selected cards
+      this.players[this.turn].ownCards.forEach(function (ownCard) {
+        ownCard.selected = false
+      })
       // debug
       console.log('push Turn')
+    },
+    // take card
+    takeCard: function (player) {
+      player.ownCards.push(this.cards[this.cards.length - 1])
+      this.cards.splice(this.cards.length - 1, 1)
+    },
+    selectCard: function (card) {
+      // reset selected cards
+      this.players[this.turn].ownCards.forEach(function (ownCard) {
+        ownCard.selected = false
+      })
+      // select card
+      card.selected = true
+    },
+    putCard: function () {
+
     },
     // helpers Functions
     generateCardImgUrl: function (cardName, suit) {
