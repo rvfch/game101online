@@ -153,7 +153,6 @@ export default {
   mounted() {
     // Calculate count of cards
     this.cardsCount = this.suits.length * this.deck.length
-
     // debug
   },
   methods: {
@@ -179,12 +178,14 @@ export default {
       this.gameStarted = true
       // set Timer
       this.startTimer()
-
       // Make deck of cards for every player
       for (let i = 0; i < this.suits.length; i++) {
         for (let j = 0; j < this.deck.length; j++) {
-          this.cards.push(this.deck[j])
-          this.cards[j * i].suit = this.suits[i]
+          this.cards.push({
+            name: this.deck[j].name,
+            points: this.deck[j].points,
+            suit: this.suits[i]
+          })
         }
       }
 
