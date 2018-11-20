@@ -20,9 +20,13 @@
       <button v-show="gameStarted" type="button" @click="nextRound()">Next round</button>
     </div>
     <div class="row">
-      {{ cards }}
+      Remaining cards:
+      <div v-for="(card, index) in cards" :key="index" class="card">
+        <img :src="generateCardImgUrl(card.name, card.suit)" width="60px">
+      </div>
     </div>
     <div class="row">
+      {{ players[turn].playerName }} cards:
       <div v-for="(card, index) in players[turn].ownCards" :key="index" class="card">
         <img :src="generateCardImgUrl(card.name, card.suit)" width="60px">
       </div>
@@ -174,7 +178,7 @@ export default {
       this.time = '00:00'
     },
     startGame: function () {
-      const cardsPerPlayer = 4
+      let cardsPerPlayer = 4
       this.gameStarted = true
       // set Timer
       this.startTimer()
@@ -189,9 +193,11 @@ export default {
         }
       }
 
+      // Shuffle cards
       this.cards = this.shuffleCards(this.cards)
 
       for (let i = 0; i < this.players.length; i++) {
+        if (i === 0) { cardsPerPlayer = 3 } else { cardsPerPlayer = 4 }
         for (let j = 0; j < cardsPerPlayer; j++) {
           if (this.cards.length > 0) {
             const randomCard = Math.floor(Math.random() * this.cards.length)
