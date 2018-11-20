@@ -63,6 +63,10 @@
     border: 2px solid red;
     border-radius: 5px;
   }
+
+  .error {
+    color: red;
+  }
 </style>
 
 <script>
@@ -166,7 +170,10 @@ export default {
         winner: false,
         points: 0
       }
-      ]
+      ],
+
+      // game logic // todo!!!!
+      relations: []
     }
   },
 
@@ -214,7 +221,11 @@ export default {
       this.cards = this.shuffleCards(this.cards)
 
       for (let i = 0; i < this.players.length; i++) {
-        if (i === 0) { cardsPerPlayer = 3 } else { cardsPerPlayer = 4 }
+        if (i === 0) {
+          cardsPerPlayer = 3
+        } else {
+          cardsPerPlayer = 4
+        }
         for (let j = 0; j < cardsPerPlayer; j++) {
           if (this.cards.length > 0) {
             const randomCard = Math.floor(Math.random() * this.cards.length)
@@ -291,8 +302,28 @@ export default {
       // select card
       card.selected = true
     },
+    checkCard: function (card) {
+      // logic
+      if (card.suit === this.cardsInGame[this.cardsInGame.length - 1].suit) {
+        return true
+      } else {
+        return 'suitMismatch'
+      }
+    },
     putCard: function () {
-
+      let selectedCard
+      this.players[this.turn].ownCards.forEach(function (ownCard, index) {
+        if (ownCard.selected) {
+          selectedCard = ownCard
+        }
+      })
+      if (this.checkCard(selectedCard) === true) {
+        this.players[this.turn].ownCards.splice(this.players[this.turn].ownCards.indexOf(selectedCard), 1)
+        this.cardsInGame.push(selectedCard)
+        this.pushTurn()
+      } else {
+        console.log(this.checkCard(selectedCard))
+      }
     },
     // helpers Functions
     generateCardImgUrl: function (cardName, suit) {
