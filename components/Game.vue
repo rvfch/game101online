@@ -16,9 +16,9 @@
       <button v-show="!gameStarted" type="button" @click="startGame()">Start game</button>
       <button v-show="gameStarted" type="button" @click="restartGame()">Restart game</button>
       <button v-show="gameStarted" type="button" @click="endGame()">End game</button>
-      <button v-show="gameStarted" type="button" @click="pushTurn()">Next turn</button>
+      <button v-show="gameStarted" type="button" @click="pushTurn(1)">Next turn</button>
       <button v-show="gameStarted" type="button" @click="nextRound()">Next round</button>
-      <button v-show="gameStarted" type="button" @click="takeCard(players[turn])">Take card</button>
+      <button v-show="gameStarted" type="button" @click="takeCards(players[turn], 1)">Take card</button>
     </div>
     <div class="row">
       Remaining cards:
@@ -188,6 +188,14 @@ export default {
       cards = cards.map(a => [Math.random(), a]).sort((a, b) => a[0] - b[0]).map(a => a[1])
       return cards
     },
+    resetCards: function () {
+      this.cards = []
+      for (let i = 0; i < this.cardsInGame.length - 1; i++) {
+        this.cards.push(this.cardsInGame[i])
+        this.cardsInGame.splice(i, 1)
+      }
+      this.cards = this.shuffleCards(this.cards)
+    },
     // Functions for control a game
     startTimer: function () {
       this.startTime = moment()
@@ -202,6 +210,10 @@ export default {
     },
     startGame: function () {
       let cardsPerPlayer = 4
+
+      const firstTurnPlayer = Math.floor(Math.random() * this.players.length)
+      this.turn = firstTurnPlayer
+
       this.gameStarted = true
       // set Timer
       this.startTimer()
@@ -221,7 +233,7 @@ export default {
       this.cards = this.shuffleCards(this.cards)
 
       for (let i = 0; i < this.players.length; i++) {
-        if (i === 0) {
+        if (i === firstTurnPlayer) {
           cardsPerPlayer = 3
         } else {
           cardsPerPlayer = 4
@@ -276,11 +288,13 @@ export default {
       this.startTimer()
     },
     // next turn
-    pushTurn: function () {
-      if (this.turn < this.players.length - 1) {
-        this.turn++
-      } else {
-        this.turn = 0
+    pushTurn: function (turns) {
+      for (let i = 0; i < turns; i++) {
+        if (this.turn < this.players.length - 1) {
+          this.turn++
+        } else {
+          this.turn = 0
+        }
       }
       // reset selected cards
       this.players[this.turn].ownCards.forEach(function (ownCard) {
@@ -290,9 +304,16 @@ export default {
       console.log('push Turn')
     },
     // take card
-    takeCard: function (player) {
-      player.ownCards.push(this.cards[this.cards.length - 1])
-      this.cards.splice(this.cards.length - 1, 1)
+    takeCards: function (player, count) {
+      if (this.cards.length >= count) {
+        for (let i = 0; i < count; i++) {
+          player.ownCards.push(this.cards[this.cards.length - i - 1])
+          this.cards.splice(this.cards.length - i - 1, 1)
+        }
+        this.pushTurn(1)
+      } else {
+        this.resetCards()
+      }
     },
     selectCard: function (card) {
       // reset selected cards
@@ -304,11 +325,16 @@ export default {
     },
     checkCard: function (card) {
       // logic
-      if (card.suit === this.cardsInGame[this.cardsInGame.length - 1].suit) {
-        return true
+      // Check if the suits are same
+      if ((card.suit === this.cardsInGame[this.cardsInGame.length - 1].suit) ||
+        (card.points === this.cardsInGame[this.cardsInGame.length - 1].points)) {
+        if (card.name === 'ace') {
+          this.pushTurn(2)
+        }
       } else {
-        return 'suitMismatch'
+        return 'cardMismatch'
       }
+      return true
     },
     putCard: function () {
       let selectedCard
@@ -320,7 +346,7 @@ export default {
       if (this.checkCard(selectedCard) === true) {
         this.players[this.turn].ownCards.splice(this.players[this.turn].ownCards.indexOf(selectedCard), 1)
         this.cardsInGame.push(selectedCard)
-        this.pushTurn()
+        this.pushTurn(1)
       } else {
         console.log(this.checkCard(selectedCard))
       }
