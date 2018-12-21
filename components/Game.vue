@@ -18,7 +18,6 @@
       <button v-show="gameStarted" type="button" @click="endGame()">End game</button>
       <button v-show="gameStarted" type="button" @click="pushTurn(1)">Next turn</button>
       <button v-show="gameStarted" type="button" @click="nextRound()">Next round</button>
-      <button v-show="gameStarted" type="button" @click="takeCards(players[turn], 1)">Take card</button>
     </div>
     <div class="row">
       Remaining cards:
@@ -40,6 +39,7 @@
     </div>
     <div class="row">
       <button v-show="gameStarted" type="button" @click="putCard()">Put card</button>
+      <button v-show="gameStarted" type="button" @click="takeCards(players[turn], 1)">Take card</button>
     </div>
   </div>
 </template>
@@ -328,9 +328,7 @@ export default {
       // Check if the suits are same
       if ((card.suit === this.cardsInGame[this.cardsInGame.length - 1].suit) ||
         (card.points === this.cardsInGame[this.cardsInGame.length - 1].points)) {
-        if (card.name === 'ace') {
-          this.pushTurn(2)
-        }
+
       } else {
         return 'cardMismatch'
       }
@@ -344,6 +342,7 @@ export default {
         }
       })
       if (this.checkCard(selectedCard) === true) {
+        console.log(this.turn)
         this.players[this.turn].ownCards.splice(this.players[this.turn].ownCards.indexOf(selectedCard), 1)
         this.cardsInGame.push(selectedCard)
         this.pushTurn(1)
